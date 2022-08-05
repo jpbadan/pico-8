@@ -153,3 +153,121 @@ function drawKeyboard()
     camera()
     rect(1, 91, 126, 126) -- Keyboard outline
 end
+
+
+function _init()
+-- ------ word module ------
+
+function str2word(str)
+local word = {}
+
+for i=1,#str do
+word[i] = {char=sub(str,i,i),color=7} --white
+end
+
+return word
+end
+
+-- compares word to baseline, modifies word colors to reflect answer
+function comparewords(baseline,word)
+stdcolor = 7 -- white (uncompared text color)
+
+-- exact letter, exact location : colors green
+for b=1,#baseline do
+if baseline[b].char == word[b].char then
+word[b].color = 3 --green
+end
+end
+
+-- exact letter, different location: colors orange
+for b=1,#baseline do
+for w=1,#word do
+if word[w].color == stdcolor then
+if baseline[b].char == word[w].char then
+word[w].color = 9 --orange
+break
+end
+end
+end
+end
+
+-- letter not in baseline: colors grey
+for w=1,#word do
+if word[w].color == stdcolor then
+word[w].color = 5 --grey
+end
+end
+
+return word
+end
+
+
+function printword(word, cursorx)
+for i=1,#word do
+cursor(cursorx,63)
+print(word[i].char, word[i].color)
+cursorx = cursorx + 10
+end
+
+return word, cursorx
+end
+
+
+function drawboard(words)
+-- draws a 5x6 grid of squares
+
+letterSqOrig = {x=3,y=2} --px
+sqsize = 8 --px
+sqspacing = 2 --px
+boardox = 63-(sqsize*5+sqspacing*4)/2
+boardoy = 10
+
+x0, y0 = boardox, boardoy
+x1, y1 = boardox+sqsize, boardoy+sqsize
+cx, cy = x0+letterSqOrig.x, y0+letterSqOrig.y
+for j=1,6 do
+word = words[j]
+for i=1,5 do
+if word then
+-- draws squares with letters
+cursor(cx,cy)
+rectfill(x0,y0,x1,y1,word[i].color)
+print(word[i].char, 7) -- White
+else
+-- draws empty squares
+rect(x0,y0,x1,y1,5) --Grey
+end
+-- Sets new x coordinates
+x0 = x0+sqsize+sqspacing
+x1 = x1+sqsize+sqspacing
+cx = cx+sqsize+sqspacing
+end
+-- Sets new y coordinates
+y0 = y0+sqsize+sqspacing
+y1 = y1+sqsize+sqspacing
+cy = cy+sqsize+sqspacing
+-- resets x
+x0 = boardox
+x1 = boardox+sqsize
+cx = x0+letterSqOrig.x
+end
+
+
+end
+
+
+
+
+
+
+
+cls()
+test = str2word("BOSON")
+test2 = str2word("COLOM")
+baseline = str2word("COLMO")
+ans = comparewords(baseline,test)
+ans2 = comparewords(baseline,test2)
+--printword(ans, 30)
+drawboard({ans,ans2})
+
+end
